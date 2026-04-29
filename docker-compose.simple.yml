@@ -1,0 +1,37 @@
+# Simplified Docker Compose for direct port 4101 access (no nginx)
+# Usage: docker-compose -f docker-compose.simple.yml up -d
+
+version: '3.8'
+
+services:
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: newyear2025-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=${DB_HOST:-192.168.40.15}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-gp25095}
+      - DB_NAME=${DB_NAME:-NYCheckin}
+      - DB_PORT=${DB_PORT:-3800}
+      - QR_SECRET=${QR_SECRET:-your-secret-key-change-this}
+      - PORT=4101
+    ports:
+      - "${APP_PORT:-4101}:4101"
+    networks:
+      - newyear2025-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4101/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  newyear2025-network:
+    driver: bridge
+
