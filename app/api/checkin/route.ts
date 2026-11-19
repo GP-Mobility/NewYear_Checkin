@@ -331,7 +331,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET method to retrieve check-ins — เฉพาะ admin (ต้องมี x-admin-key)
+// GET method to retrieve check-ins — เฉพาะ admin (ต้องมี x-api-key)
 export async function GET(request: NextRequest) {
   const denied = checkAdmin(request)
   if (denied) return denied
