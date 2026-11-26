@@ -3,6 +3,9 @@ import { query, executeTransaction } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { checkRateLimit, checkSuspiciousPattern } from '@/utils/rateLimit'
 import mysql from 'mysql2/promise'
+import { checkAdmin } from '@/lib/adminAuth'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
@@ -132,7 +135,7 @@ export async function POST(request: NextRequest) {
       
       // ตรวจสอบ cookie
       const cookieStore = await cookies()
-      const existingDeviceCookie = cookieStore.get('ny2025_device')
+      const existingDeviceCookie = cookieStore.get('ny2026_device')
       
       // ตรวจสอบว่า device นี้เคยเช็คอินไปแล้วหรือไม่ (ไม่ว่าจะเป็นรหัสพนักงานไหน)
       // วิธีที่ 1: ตรวจสอบจาก cookie
@@ -302,7 +305,7 @@ export async function POST(request: NextRequest) {
     // ตั้งค่า HttpOnly cookie เพื่อล็อก device (ช่วยกันล้าง localStorage)
     if (deviceId) {
       try {
-        response.cookies.set('ny2025_device', deviceId, {
+        response.cookies.set('ny2026_device', deviceId, {
           httpOnly: true,
           sameSite: 'lax',
           secure: true,
@@ -328,8 +331,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET method to retrieve check-ins (optional, for admin)
-export async function GET() {
+// GET method to retrieve check-ins — เฉพาะ admin (ต้องมี x-api-key)
+export async function GET(request: NextRequest) {
+  const denied = checkAdmin(request)
+  if (denied) return denied
+
   try {
     const sql = 'SELECT * FROM checkinlog ORDER BY recordid DESC LIMIT 100'
     const results = await query(sql)

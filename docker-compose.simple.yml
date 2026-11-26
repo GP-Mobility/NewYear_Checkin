@@ -9,7 +9,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: newyear2025-app
+    container_name: newyear2026-app
     restart: unless-stopped
     environment:
       - NODE_ENV=production
@@ -19,11 +19,12 @@ services:
       - DB_NAME=${DB_NAME:-NYCheckin}
       - DB_PORT=${DB_PORT:-3800}
       - QR_SECRET=${QR_SECRET:-your-secret-key-change-this}
+      - API_KEY=${API_KEY:-}
       - PORT=4101
     ports:
       - "${APP_PORT:-4101}:4101"
     networks:
-      - newyear2025-network
+      - newyear2026-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4101/api/health || exit 1"]
       interval: 30s
@@ -32,6 +33,6 @@ services:
       start_period: 40s
 
 networks:
-  newyear2025-network:
+  newyear2026-network:
     driver: bridge
 
